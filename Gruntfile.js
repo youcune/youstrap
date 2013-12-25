@@ -18,8 +18,8 @@ module.exports = function (grunt) {
     banner: '/*!\n' +
               ' * Bootstrap v<%= pkg.version %> (<%= pkg.homepage %>)\n' +
               ' * Copyright <%= grunt.template.today("yyyy") %> <%= pkg.author %>\n' +
-              ' * Licensed under <%= _.pluck(pkg.licenses, "type") %> (<%= _.pluck(pkg.licenses, "url") %>)\n' +
-              ' */\n',
+              ' * Licensed under MIT (<%= _.pluck(pkg.licenses, "url").join(", ") %>)\n' +
+              ' */\n\n',
     jqueryCheck: 'if (typeof jQuery === "undefined") { throw new Error("Bootstrap requires jQuery") }\n\n',
 
     // Task configuration.
@@ -69,7 +69,7 @@ module.exports = function (grunt) {
 
     concat: {
       options: {
-        banner: '<%= banner %>\n<%= jqueryCheck %>',
+        banner: '<%= banner %><%= jqueryCheck %>',
         stripBanners: false
       },
       bootstrap: {
@@ -93,7 +93,7 @@ module.exports = function (grunt) {
 
     uglify: {
       options: {
-        banner: '<%= banner %>\n',
+        banner: '<%= banner %>',
         report: 'min'
       },
       bootstrap: {
@@ -125,18 +125,6 @@ module.exports = function (grunt) {
           'dist/css/<%= pkg.name %>.css': 'less/bootstrap.less'
         }
       },
-      compileTheme: {
-        options: {
-          strictMath: true,
-          sourceMap: true,
-          outputSourceFiles: true,
-          sourceMapURL: '<%= pkg.name %>-theme.css.map',
-          sourceMapFilename: 'dist/css/<%= pkg.name %>-theme.css.map'
-        },
-        files: {
-          'dist/css/<%= pkg.name %>-theme.css': 'less/theme.less'
-        }
-      },
       minify: {
         options: {
           cleancss: true,
@@ -144,7 +132,6 @@ module.exports = function (grunt) {
         },
         files: {
           'dist/css/<%= pkg.name %>.min.css': 'dist/css/<%= pkg.name %>.css',
-          'dist/css/<%= pkg.name %>-theme.min.css': 'dist/css/<%= pkg.name %>-theme.css'
         }
       }
     },
@@ -265,7 +252,7 @@ module.exports = function (grunt) {
   require('load-grunt-tasks')(grunt, {scope: 'devDependencies'});
 
   // Docs HTML validation task
-  grunt.registerTask('validate-html', ['jekyll', 'validation']);
+  //grunt.registerTask('validate-html', ['jekyll', 'validation']);
 
   // Test task.
   var testSubtasks = [];
@@ -274,9 +261,9 @@ module.exports = function (grunt) {
     testSubtasks = testSubtasks.concat(['dist-css', 'jshint', 'jscs', 'qunit']);
   }
   // Skip HTML validation if running a different subset of the test suite
-  if (!process.env.TWBS_TEST || process.env.TWBS_TEST === 'validate-html') {
-    testSubtasks.push('validate-html');
-  }
+  // if (!process.env.TWBS_TEST || process.env.TWBS_TEST === 'validate-html') {
+  //   testSubtasks.push('validate-html');
+  // }
   // Only run Sauce Labs tests if there's a Sauce access key
   if (typeof process.env.SAUCE_ACCESS_KEY !== 'undefined'
       // Skip Sauce if running a different subset of the test suite
