@@ -122,7 +122,9 @@ module.exports = function (grunt) {
           sourceMapFilename: 'dist/css/<%= pkg.name %>.css.map'
         },
         files: {
-          'dist/css/<%= pkg.name %>.css': 'less/bootstrap.less'
+          'dist/css/<%= pkg.name %>-s.css': 'less/youstrap-s.less',
+          'dist/css/<%= pkg.name %>-m.css': 'less/youstrap-m.less',
+          'dist/css/<%= pkg.name %>-l.css': 'less/youstrap-l.less'
         }
       },
       minify: {
@@ -131,7 +133,9 @@ module.exports = function (grunt) {
           report: 'min'
         },
         files: {
-          'dist/css/<%= pkg.name %>.min.css': 'dist/css/<%= pkg.name %>.css',
+          'dist/css/<%= pkg.name %>-s.min.css': 'dist/css/<%= pkg.name %>-s.css',
+          'dist/css/<%= pkg.name %>-m.min.css': 'dist/css/<%= pkg.name %>-m.css',
+          'dist/css/<%= pkg.name %>-l.min.css': 'dist/css/<%= pkg.name %>-l.css'
         }
       }
     },
