@@ -18,8 +18,8 @@ module.exports = function (grunt) {
     banner: '/*!\n' +
               ' * Bootstrap v<%= pkg.version %> (<%= pkg.homepage %>)\n' +
               ' * Copyright <%= grunt.template.today("yyyy") %> <%= pkg.author %>\n' +
-              ' * Licensed under <%= _.pluck(pkg.licenses, "type") %> (<%= _.pluck(pkg.licenses, "url") %>)\n' +
-              ' */\n',
+              ' * Licensed under MIT (<%= _.pluck(pkg.licenses, "url").join(", ") %>)\n' +
+              ' */\n\n',
     jqueryCheck: 'if (typeof jQuery === "undefined") { throw new Error("Bootstrap requires jQuery") }\n\n',
 
     // Task configuration.
@@ -69,7 +69,7 @@ module.exports = function (grunt) {
 
     concat: {
       options: {
-        banner: '<%= banner %>\n<%= jqueryCheck %>',
+        banner: '<%= banner %><%= jqueryCheck %>',
         stripBanners: false
       },
       bootstrap: {
@@ -93,7 +93,7 @@ module.exports = function (grunt) {
 
     uglify: {
       options: {
-        banner: '<%= banner %>\n',
+        banner: '<%= banner %>',
         report: 'min'
       },
       bootstrap: {
@@ -122,19 +122,9 @@ module.exports = function (grunt) {
           sourceMapFilename: 'dist/css/<%= pkg.name %>.css.map'
         },
         files: {
-          'dist/css/<%= pkg.name %>.css': 'less/bootstrap.less'
-        }
-      },
-      compileTheme: {
-        options: {
-          strictMath: true,
-          sourceMap: true,
-          outputSourceFiles: true,
-          sourceMapURL: '<%= pkg.name %>-theme.css.map',
-          sourceMapFilename: 'dist/css/<%= pkg.name %>-theme.css.map'
-        },
-        files: {
-          'dist/css/<%= pkg.name %>-theme.css': 'less/theme.less'
+          'dist/css/<%= pkg.name %>-s.css': 'less/youstrap-s.less',
+          'dist/css/<%= pkg.name %>-m.css': 'less/youstrap-m.less',
+          'dist/css/<%= pkg.name %>-l.css': 'less/youstrap-l.less'
         }
       },
       minify: {
@@ -143,8 +133,9 @@ module.exports = function (grunt) {
           report: 'min'
         },
         files: {
-          'dist/css/<%= pkg.name %>.min.css': 'dist/css/<%= pkg.name %>.css',
-          'dist/css/<%= pkg.name %>-theme.min.css': 'dist/css/<%= pkg.name %>-theme.css'
+          'dist/css/<%= pkg.name %>-s.min.css': 'dist/css/<%= pkg.name %>-s.css',
+          'dist/css/<%= pkg.name %>-m.min.css': 'dist/css/<%= pkg.name %>-m.css',
+          'dist/css/<%= pkg.name %>-l.min.css': 'dist/css/<%= pkg.name %>-l.css'
         }
       }
     },
@@ -265,7 +256,7 @@ module.exports = function (grunt) {
   require('load-grunt-tasks')(grunt, {scope: 'devDependencies'});
 
   // Docs HTML validation task
-  grunt.registerTask('validate-html', ['jekyll', 'validation']);
+  //grunt.registerTask('validate-html', ['jekyll', 'validation']);
 
   // Test task.
   var testSubtasks = [];
@@ -274,9 +265,9 @@ module.exports = function (grunt) {
     testSubtasks = testSubtasks.concat(['dist-css', 'jshint', 'jscs', 'qunit']);
   }
   // Skip HTML validation if running a different subset of the test suite
-  if (!process.env.TWBS_TEST || process.env.TWBS_TEST === 'validate-html') {
-    testSubtasks.push('validate-html');
-  }
+  // if (!process.env.TWBS_TEST || process.env.TWBS_TEST === 'validate-html') {
+  //   testSubtasks.push('validate-html');
+  // }
   // Only run Sauce Labs tests if there's a Sauce access key
   if (typeof process.env.SAUCE_ACCESS_KEY !== 'undefined'
       // Skip Sauce if running a different subset of the test suite
@@ -299,38 +290,12 @@ module.exports = function (grunt) {
   grunt.registerTask('dist', ['clean', 'dist-css', 'dist-fonts', 'dist-js']);
 
   // Default task.
-  grunt.registerTask('default', ['test', 'dist', 'build-glyphicons-data', 'build-customizer']);
+  grunt.registerTask('default', ['test', 'dist', 'build-customizer']);
 
   // Version numbering task.
   // grunt change-version-number --oldver=A.B.C --newver=X.Y.Z
   // This can be overzealous, so its changes should always be manually reviewed!
   grunt.registerTask('change-version-number', ['sed']);
-
-  grunt.registerTask('build-glyphicons-data', function () {
-    var fs = require('fs')
-
-    // Pass encoding, utf8, so `readFileSync` will return a string instead of a
-    // buffer
-    var glyphiconsFile = fs.readFileSync('less/glyphicons.less', 'utf8')
-    var glpyhiconsLines = glyphiconsFile.split('\n')
-
-    // Use any line that starts with ".glyphicon-" and capture the class name
-    var iconClassName = /^\.(glyphicon-[^\s]+)/
-    var glyphiconsData = '# This file is generated via Grunt task. **Do not edit directly.** \n' +
-                         '# See the \'build-glyphicons-data\' task in Gruntfile.js.\n\n';
-    for (var i = 0, len = glpyhiconsLines.length; i < len; i++) {
-      var match = glpyhiconsLines[i].match(iconClassName)
-
-      if (match != null) {
-        glyphiconsData += '- ' + match[1] + '\n'
-      }
-    }
-
-    // Create the `_data` directory if it doesn't already exist
-    if (!fs.existsSync('_data')) fs.mkdirSync('_data')
-
-    fs.writeFileSync('_data/glyphicons.yml', glyphiconsData)
-  });
 
   // task for building customizer
   grunt.registerTask('build-customizer', 'Add scripts/less files to customizer.', function () {
